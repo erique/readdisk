@@ -91,26 +91,24 @@ void DumpBuffer(const uint8_t* buffer, uint32_t size)
     uint32_t i, j, len;
     char format[150];
     char alphas[27];
-    strcpy(format, "$%08lx: %02x%02x%02x%02x %02X%02X%02X%02X %02X%02X%02X%02X %02X%02X%02X%02X ");
+    strcpy(format, "$%08lx [%03lx]: %04lx %04lx %04lx %04lx %04lx %04lx %04lx %04lx ");
 
     for (i = 0; i < size; i += 16) {
         len = size - i;
 
         // last line is less than 16 bytes? rewrite the format string
         if (len < 16) {
-            strcpy(format, "$%08X: ");
+            strcpy(format, "$%08lx [%03lx]: ");
 
-            for (j = 0; j < 16; ++j) {
+            for (j = 0; j < 16; j+=2) {
                 if (j < len) {
-                    strcat(format, "%02X");
+                    strcat(format, "%04lx");
 
                 } else {
-                    strcat(format, "__");
+                    strcat(format, "____");
                 }
 
-                if ((j & 0x3) == 0x3) {
-                    strcat(format, " ");
-                }
+                strcat(format, " ");
             }
 
         } else {
@@ -131,9 +129,9 @@ void DumpBuffer(const uint8_t* buffer, uint32_t size)
         j = strlen(format);
         sprintf(format + j, "'%s'\n", alphas);
 
-        kprintf(format, buffer+i,
-              buffer[i + 0], buffer[i + 1], buffer[i + 2], buffer[i + 3], buffer[i + 4], buffer[i + 5], buffer[i + 6], buffer[i + 7],
-              buffer[i + 8], buffer[i + 9], buffer[i + 10], buffer[i + 11], buffer[i + 12], buffer[i + 13], buffer[i + 14], buffer[i + 15]);
+        uint16_t* p = (uint16_t*)&buffer[i];
+        kprintf(format, buffer+i, i,
+           p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
 
         format[j] = '\0';
     }
